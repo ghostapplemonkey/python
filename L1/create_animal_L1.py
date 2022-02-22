@@ -2,10 +2,10 @@ from pycat.core import Window
 
 window = Window()
 
-window.background_image = "forest_background.jpg"
+window.background_image = "image/forest_background.jpg"
 
 
-animal_image = input("Which animal do you like?(pig,rat,owl,elephant,rooster,tiger,wildcat)")+".png"
+animal_image = "image/"+input("Which animal do you like?(pig,rat,owl,elephant,rooster,tiger,wildcat)")+".png"
 animal_number = input("How many?(1~3)")
 if animal_number == "1":        
     animal1 = window.create_sprite()
