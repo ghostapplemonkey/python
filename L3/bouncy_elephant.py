@@ -1,6 +1,3 @@
-from random import random
-from turtle import right
-from venv import create
 from pycat.core import Window,Sprite
 
 window = Window()
