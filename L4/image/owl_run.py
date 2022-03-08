@@ -20,6 +20,11 @@ class Owl(Sprite):
         if self.y > 160:
             if window.is_key_down(KeyCode.S):
                 self.y -= 160
+        if self.score > 25:
+            print("YOU WIN")
+        if self.life == 0:
+            print("YOU LOSE")
+
 
         
 class Ork(Sprite):
