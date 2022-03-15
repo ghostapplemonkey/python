@@ -1,4 +1,4 @@
-from pycat.core import Window,KeyCode,Sprite
+from pycat.core import Window,KeyCode,Sprite,RotationMode
 
 window = Window(background_image = "image/sea.png")
 
@@ -6,6 +6,7 @@ class Owl(Sprite):
     def on_create(self):
         self.image = "image/owl.png"
         self.goto_random_position()
+        self.rotation_mode = RotationMode.RIGHT_LEFT
     def on_update(self, dt):
         if window.is_key_down(KeyCode.W):
             self.rotation = 90
@@ -22,6 +23,7 @@ class Owl(Sprite):
         if self.is_touching_sprite(rat):
             print("You win")
             window.close()
+        
 class Ork(Sprite):
     def on_create(self):
         self.goto_random_position()
