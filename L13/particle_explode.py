@@ -1,6 +1,5 @@
 from random import randint, random
 from pycat.core import Sprite,Window,Scheduler,Color,KeyCode,Point
-from sklearn.inspection import PartialDependenceDisplay
 
 window = Window(width=1200,height=600)
 
