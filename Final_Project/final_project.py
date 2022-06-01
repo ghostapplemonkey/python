@@ -1,4 +1,3 @@
-from matplotlib.pyplot import switch_backend
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
 
 window = Window(width=1200,height=600)
@@ -16,10 +15,13 @@ class Knife(Sprite):
     def on_create(self):
         self.image = "img/sword.png"
     def on_update(self, dt):
-        self.x = p1.x - 30
-        self.y = p1.y + 43
-        self.rotation = 240
-        self.scale = 0.2
+        if self.scale_x < 0:
+            self.x = p1.x + 30
+            self.y = p1.y + 38
+        else:
+            self.x = p1.x - 30
+            self.y = p1.y + 38
+        self.scale = 0.3
 
 class P1(Sprite):
     def on_create(self):
@@ -59,8 +61,8 @@ class P1(Sprite):
             if self.time > 0.5:
                 self.time = 0
             if knife.scale_x > 0:
-                Scheduler.wait(0.1,knife_switch)
-                knife.rotation = 240
+                knife.scale_x *= -1
+                
             
         if self.state == -1:
             if self.time <= 0.1:
@@ -75,6 +77,9 @@ class P1(Sprite):
                 self.image = "img/move5 (2).png"
             if self.time > 0.5:
                 self.time = 0
+            if knife.scale_x < 0:
+                knife.scale_x *= -1
+                
         if window.is_key_pressed(KeyCode.W) and self.is_jump == False:
             self.ysp = 18
             self.is_jump = True
@@ -90,6 +95,4 @@ class P1(Sprite):
         
 p1 = window.create_sprite(P1)
 knife = window.create_sprite(Knife)
-def knife_switch():
-    knife.scale_x *= -1
 window.run()
