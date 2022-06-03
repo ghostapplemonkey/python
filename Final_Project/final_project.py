@@ -14,14 +14,43 @@ g3.add_tag("ground")
 class Knife(Sprite):
     def on_create(self):
         self.image = "img/sword.png"
-    def on_update(self, dt):
-        if self.scale_x < 0:
-            self.x = p1.x + 30
-            self.y = p1.y + 38
-        else:
-            self.x = p1.x - 30
-            self.y = p1.y + 38
         self.scale = 0.3
+        self.is_following = True
+    def on_update(self, dt):
+        if self.is_following == True:
+            if self.scale_x < 0:
+                self.x = p1.x + 30
+                self.y = p1.y + 38
+                self.rotation = 0
+            else:
+                self.x = p1.x - 30
+                self.y = p1.y + 38
+                self.rotation = 0
+        else:
+            if self.scale_x < 0:
+                self.x = p1.x + 66
+                self.y = p1.y
+                self.rotation = -60
+            else:
+                self.x = p1.x - 66
+                self.y = p1.y 
+                self.rotation = 60
+        if window.is_key_down(KeyCode.R):
+            if self.scale_x < 0:
+                self.is_following = False
+                Scheduler.wait(0.15,self.knife_back)
+            else:
+                self.is_following = False
+                Scheduler.wait(0.15,self.knife_back)
+        
+    def knife_back(self):
+        if self.scale_x < 0:
+            self.is_following = True
+        else:
+            self.is_following = True
+                
+
+        
 
 class P1(Sprite):
     def on_create(self):
@@ -91,6 +120,8 @@ class P1(Sprite):
             self.y = groundt.y + groundt.height/2 + self.height/2
             self.is_jump = False
             self.ysp = 0
+
+        
 
         
 p1 = window.create_sprite(P1)
