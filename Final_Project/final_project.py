@@ -1,12 +1,9 @@
-from email.mime import image
-from re import T
-from turtle import color
-from xml.etree.ElementTree import TreeBuilder
+from cgitb import text
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
 
 window = Window(width=1200,height=600)
-
-window.create_sprite(position=window.center,scale=1200,color=Color.WHITE,layer=-1)
+window.create_sprite(position = window.center,image = "img/attack1.png")
+window.create_sprite(position=window.center,scale=1200,color=Color.WHITE,layer=-100)
 g = window.create_sprite(x=600,y=25,scale=100,scale_x=1200,color=Color.BLACK)
 g1 = window.create_sprite(x=325,y=250,scale_y=15,scale_x=220,color=Color.BLACK)
 g2 = window.create_sprite(x=875,y=250,scale_y=15,scale_x=220,color=Color.BLACK)
@@ -15,6 +12,18 @@ g.add_tag("ground")
 g1.add_tag("ground")
 g2.add_tag("ground")
 g3.add_tag("ground")
+hp_bar_back1 = window.create_sprite(x=200, y=550, color=Color.BLACK, layer=-1)
+hp_bar_back1.scale_x = 200
+hp_bar_back1.scale_y = 20
+p1_hp_bar = window.create_sprite(x=200, y=550, color=Color.RED)
+p1_hp_bar.scale_x = 200
+p1_hp_bar.scale_y = 20
+hp_bar_back2 = window.create_sprite(x=1000, y=550, color=Color.BLACK, layer=-1)
+hp_bar_back2.scale_x = 200
+hp_bar_back2.scale_y = 20
+p2_hp_bar = window.create_sprite(x=1000, y=550, color=Color.RED)
+p2_hp_bar.scale_x = 200
+p2_hp_bar.scale_y = 20
 class Knife(Sprite):
     def on_create(self):
         self.image = "img/sword.png"
@@ -143,6 +152,8 @@ class P1(Sprite):
         self.time += dt
         self.xsp *= 0.95
         if self.is_touching_sprite(knife2) and (knife2.rotation >= 10 or knife2.rotation <= -10):
+            p1_hp_bar.scale_x -= 1
+            p1_hp_bar.x -= 0.5
             self.xsp = 10
             self.ysp = 5
             self.is_hit = True
@@ -236,6 +247,8 @@ class P2(Sprite):
         self.time += dt
         self.xsp *= 0.95
         if self.is_touching_sprite(knife) and (knife.rotation >= 10 or knife.rotation <= -10):
+            p2_hp_bar.scale_x -= 1
+            p2_hp_bar.x += 0.5
             self.xsp = 10
             self.ysp = 5
             self.is_hit = True
