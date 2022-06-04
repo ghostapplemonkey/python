@@ -1,4 +1,5 @@
 from turtle import color
+from xml.etree.ElementTree import TreeBuilder
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
 
 window = Window(width=1200,height=600)
@@ -103,16 +104,36 @@ class P1(Sprite):
         self.state = 0
         self.time = 0
         self.scale = 0.4
+        self.xsp = 0
+        self.is_hit = False
+        self.flying_direction = 0
     def on_update(self, dt):
         self.time += dt
-        if window.is_key_pressed(KeyCode.D):
-            self.x += 7
-            self.state = 1
-        elif window.is_key_pressed(KeyCode.A):
-            self.x -= 7
-            self.state = -1
-        else:
-            self.state = 0
+        self.xsp *= 0.95
+        if self.is_touching_sprite(ax) and (ax.rotation >= 10 or ax.rotation <= -10):
+            self.xsp = 10
+            self.ysp = 5
+            self.is_hit = True
+            if self.x < p2.x:
+                self.flying_direction = -1
+            else:
+                self.flying_direction = 1
+        if self.is_hit == True:
+            if self.flying_direction == 1:
+                self.x += self.xsp
+            else:
+                self.x -= self.xsp
+        if self.xsp <= 3:
+            self.is_hit = False
+        if self.is_hit == False:
+            if window.is_key_pressed(KeyCode.D):
+                self.x += 7
+                self.state = 1
+            elif window.is_key_pressed(KeyCode.A):
+                self.x -= 7
+                self.state = -1
+            else:
+                self.state = 0
         if self.state == 0:
             self.time = 0
             self.image = "img/stop.png"
@@ -149,7 +170,7 @@ class P1(Sprite):
             if knife.scale_x < 0:
                 knife.scale_x *= -1
                 
-        if window.is_key_pressed(KeyCode.W) and self.is_jump == False:
+        if window.is_key_pressed(KeyCode.W) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
         self.y += self.ysp
@@ -174,16 +195,36 @@ class P2(Sprite):
         self.state = 0
         self.time = 0
         self.scale = 0.4
+        self.xsp = 0
+        self.is_hit = False
+        self.flying_direction = 0
     def on_update(self, dt):
         self.time += dt
-        if window.is_key_pressed(KeyCode.RIGHT):
-            self.x += 7
-            self.state = 1
-        elif window.is_key_pressed(KeyCode.LEFT):
-            self.x -= 7
-            self.state = -1
-        else:
-            self.state = 0
+        self.xsp *= 0.95
+        if self.is_touching_sprite(knife) and (knife.rotation >= 10 or knife.rotation <= -10):
+            self.xsp = 10
+            self.ysp = 5
+            self.is_hit = True
+            if self.x < p1.x:
+                self.flying_direction = -1
+            else:
+                self.flying_direction = 1
+        if self.is_hit == True:
+            if self.flying_direction == 1:
+                self.x += self.xsp
+            else:
+                self.x -= self.xsp
+        if self.xsp <= 3:
+            self.is_hit = False
+        if self.is_hit == False:    
+            if window.is_key_pressed(KeyCode.RIGHT):
+                self.x += 7
+                self.state = 1
+            elif window.is_key_pressed(KeyCode.LEFT):
+                self.x -= 7
+                self.state = -1
+            else:
+                self.state = 0
         if self.state == 0:
             self.time = 0
             self.image = "img/stop.png"
@@ -220,7 +261,7 @@ class P2(Sprite):
             if ax.scale_x < 0:
                 ax.scale_x *= -1
                 
-        if window.is_key_pressed(KeyCode.UP) and self.is_jump == False:
+        if window.is_key_pressed(KeyCode.UP) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
         self.y += self.ysp
