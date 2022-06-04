@@ -1,3 +1,5 @@
+from email.mime import image
+from re import T
 from turtle import color
 from xml.etree.ElementTree import TreeBuilder
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
@@ -88,9 +90,39 @@ class Ax(Sprite):
             self.is_following = True
         else:
             self.is_following = True
-                
-
+class Wood(Sprite):
+    def on_create(self):
+        self.image = "img/wood.png"
+        self.position = p1.position
+        self.ysp = 0
+        self.scale = 0.2
+        Scheduler.wait(3,self.delete_self)
+    def on_update(self, dt):
+        if self.is_touching_any_sprite_with_tag("ground"):
+            self.ysp = 0
+        else:
+            self.ysp -= 0.8  
+        self.y += self.ysp
         
+    def delete_self(self):
+        self.delete()
+
+class Rock(Sprite):
+    def on_create(self):
+        self.image = "img/rock.png"
+        self.position = p2.position
+        self.ysp = 0
+        self.scale = 0.3
+        Scheduler.wait(3,self.delete_self)
+    def on_update(self, dt):
+        if self.is_touching_any_sprite_with_tag("ground"):
+            self.ysp = 0
+        else:
+            self.ysp -= 0.8  
+        self.y += self.ysp
+        
+    def delete_self(self):
+        self.delete()     
 
 class P1(Sprite):
     def on_create(self):
@@ -169,7 +201,9 @@ class P1(Sprite):
                 self.time = 0
             if knife.scale_x < 0:
                 knife.scale_x *= -1
-                
+        if window.is_key_down(KeyCode.T):
+            window.create_sprite(Wood)
+            self.ysp = 25
         if window.is_key_pressed(KeyCode.W) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
@@ -260,7 +294,9 @@ class P2(Sprite):
                 self.time = 0
             if ax.scale_x < 0:
                 ax.scale_x *= -1
-                
+        if window.is_key_down(KeyCode.N):
+            window.create_sprite(Rock)
+            self.ysp = 25
         if window.is_key_pressed(KeyCode.UP) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
