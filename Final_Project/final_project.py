@@ -53,7 +53,7 @@ class Knife(Sprite):
         else:
             self.is_following = True
                 
-class Ax(Sprite):
+class Knife2(Sprite):
     def on_create(self):
         self.image = "img/sword.png"
         self.scale = 0.3
@@ -142,7 +142,7 @@ class P1(Sprite):
     def on_update(self, dt):
         self.time += dt
         self.xsp *= 0.95
-        if self.is_touching_sprite(ax) and (ax.rotation >= 10 or ax.rotation <= -10):
+        if self.is_touching_sprite(knife2) and (knife2.rotation >= 10 or knife2.rotation <= -10):
             self.xsp = 10
             self.ysp = 5
             self.is_hit = True
@@ -275,8 +275,8 @@ class P2(Sprite):
                 self.image = "img/move5.png"
             if self.time > 0.5:
                 self.time = 0
-            if ax.scale_x > 0:
-                ax.scale_x *= -1
+            if knife2.scale_x > 0:
+                knife2.scale_x *= -1
                 
             
         if self.state == -1:
@@ -292,8 +292,8 @@ class P2(Sprite):
                 self.image = "img/move5 (2).png"
             if self.time > 0.5:
                 self.time = 0
-            if ax.scale_x < 0:
-                ax.scale_x *= -1
+            if knife2.scale_x < 0:
+                knife2.scale_x *= -1
         if window.is_key_down(KeyCode.N):
             window.create_sprite(Rock)
             self.ysp = 25
@@ -314,5 +314,5 @@ class P2(Sprite):
 p1 = window.create_sprite(P1)
 p2 = window.create_sprite(P2)
 knife = window.create_sprite(Knife)
-ax = window.create_sprite(Ax)
+knife2 = window.create_sprite(Knife2)
 window.run()
