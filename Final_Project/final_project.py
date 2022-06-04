@@ -2,7 +2,6 @@ from cgitb import text
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
 
 window = Window(width=1200,height=600)
-window.create_sprite(position = window.center,image = "img/attack1.png")
 window.create_sprite(position=window.center,scale=1200,color=Color.WHITE,layer=-100)
 g = window.create_sprite(x=600,y=25,scale=100,scale_x=1200,color=Color.BLACK)
 g1 = window.create_sprite(x=325,y=250,scale_y=15,scale_x=220,color=Color.BLACK)
@@ -24,6 +23,18 @@ hp_bar_back2.scale_y = 20
 p2_hp_bar = window.create_sprite(x=1000, y=550, color=Color.RED)
 p2_hp_bar.scale_x = 200
 p2_hp_bar.scale_y = 20
+class Knife_attack(Sprite):
+    def on_create(self):
+        self.image = "img/attack1.png"
+        self.scale = 0.3
+        self.scale_x = -self.scale_x
+        self.position = p1.position
+        self.point_toward_sprite(p2)
+    def on_update(self, dt):
+        self.move_forward(10)
+        # if self.is_touching_window_edge:
+        #     self.delete()
+
 class Knife(Sprite):
     def on_create(self):
         self.image = "img/sword.png"
@@ -215,6 +226,8 @@ class P1(Sprite):
         if window.is_key_down(KeyCode.T):
             window.create_sprite(Wood)
             self.ysp = 25
+        if window.is_key_down(KeyCode.Y):
+            window.create_sprite(Knife_attack)
         if window.is_key_pressed(KeyCode.W) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
