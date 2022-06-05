@@ -1,4 +1,3 @@
-from cgitb import text
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
 
 window = Window(width=1200,height=600)
@@ -25,15 +24,37 @@ p2_hp_bar.scale_x = 200
 p2_hp_bar.scale_y = 20
 class Knife_attack(Sprite):
     def on_create(self):
+        self.add_tag("attackp2")
         self.image = "img/attack1.png"
-        self.scale = 0.3
+        self.scale = 0.15
         self.scale_x = -self.scale_x
         self.position = p1.position
         self.point_toward_sprite(p2)
     def on_update(self, dt):
         self.move_forward(10)
-        # if self.is_touching_window_edge:
-        #     self.delete()
+        if self.is_touching_window_edge():
+           self.delete()
+        if self.is_touching_sprite(p2):
+            Scheduler.wait(0.1,self.delete_self)
+    def delete_self(self):
+        self.delete()
+
+class Knife_attack2(Sprite):
+    def on_create(self):
+        self.add_tag("attackp1")
+        self.image = "img/attack2.png"
+        self.scale = 0.15
+        self.scale_x = -self.scale_x
+        self.position = p2.position
+        self.point_toward_sprite(p1)
+    def on_update(self, dt):
+        self.move_forward(10)
+        if self.is_touching_window_edge():
+           self.delete()
+        if self.is_touching_sprite(p1):
+            Scheduler.wait(0.1,self.delete_self)
+    def delete_self(self):
+        self.delete()
 
 class Knife(Sprite):
     def on_create(self):
@@ -110,6 +131,7 @@ class Knife2(Sprite):
             self.is_following = True
         else:
             self.is_following = True
+
 class Wood(Sprite):
     def on_create(self):
         self.image = "img/wood.png"
@@ -156,15 +178,22 @@ class P1(Sprite):
         self.state = 0
         self.time = 0
         self.scale = 0.4
+        self.speed = 7
         self.xsp = 0
         self.is_hit = False
         self.flying_direction = 0
+        self.knife_attack_CD = 0
+        self.wood_CD = 0
     def on_update(self, dt):
+        if self.knife_attack_CD >= 0:
+            self.knife_attack_CD -= dt
+        if self.wood_CD >= 0:
+            self.wood_CD -= dt
         self.time += dt
         self.xsp *= 0.95
         if self.is_touching_sprite(knife2) and (knife2.rotation >= 10 or knife2.rotation <= -10):
-            p1_hp_bar.scale_x -= 1
-            p1_hp_bar.x -= 0.5
+            p1_hp_bar.scale_x -= 0.5
+            p1_hp_bar.x -= 0.25
             self.xsp = 10
             self.ysp = 5
             self.is_hit = True
@@ -181,13 +210,18 @@ class P1(Sprite):
             self.is_hit = False
         if self.is_hit == False:
             if window.is_key_pressed(KeyCode.D):
-                self.x += 7
+                self.x += self.speed
                 self.state = 1
             elif window.is_key_pressed(KeyCode.A):
-                self.x -= 7
+                self.x -= self.speed
                 self.state = -1
             else:
                 self.state = 0
+        if self.is_touching_any_sprite_with_tag("attackp1"):
+            p1_hp_bar.scale_x -= 1
+            p1_hp_bar.x -= 0.5
+            self.speed = 2.5
+            Scheduler.wait(3,self.speed_back)
         if self.state == 0:
             self.time = 0
             self.image = "img/stop.png"
@@ -223,11 +257,13 @@ class P1(Sprite):
                 self.time = 0
             if knife.scale_x < 0:
                 knife.scale_x *= -1
-        if window.is_key_down(KeyCode.T):
+        if window.is_key_down(KeyCode.T) and self.wood_CD <= 0.5:
             window.create_sprite(Wood)
             self.ysp = 25
-        if window.is_key_down(KeyCode.Y):
+            self.wood_CD = 12
+        if window.is_key_down(KeyCode.Y) and self.knife_attack_CD <= 0.5:
             window.create_sprite(Knife_attack)
+            self.knife_attack_CD = 8
         if window.is_key_pressed(KeyCode.W) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
@@ -239,6 +275,8 @@ class P1(Sprite):
             self.y = groundt.y + groundt.height/2 + self.height/2
             self.is_jump = False
             self.ysp = 0
+    def speed_back(self):
+        self.speed = 7
 
 
 class P2(Sprite):
@@ -252,16 +290,29 @@ class P2(Sprite):
         self.layer = 2
         self.state = 0
         self.time = 0
+        self.speed = 7
         self.scale = 0.4
         self.xsp = 0
         self.is_hit = False
         self.flying_direction = 0
+        self.knife_attack_CD = 0
+        self.rock_CD = 0
     def on_update(self, dt):
+        if p2_hp_bar.scale_x < 0:
+            print("p1 win")
+            window.close()
+        if p1_hp_bar.scale_x < 0:
+            print("p2 win")
+            window.close()
+        if self.knife_attack_CD >= 0:
+            self.knife_attack_CD -= dt
+        if self.rock_CD >= 0:
+            self.rock_CD -= dt
         self.time += dt
         self.xsp *= 0.95
         if self.is_touching_sprite(knife) and (knife.rotation >= 10 or knife.rotation <= -10):
-            p2_hp_bar.scale_x -= 1
-            p2_hp_bar.x += 0.5
+            p2_hp_bar.scale_x -= 0.5
+            p2_hp_bar.x += 0.25
             self.xsp = 10
             self.ysp = 5
             self.is_hit = True
@@ -278,13 +329,18 @@ class P2(Sprite):
             self.is_hit = False
         if self.is_hit == False:    
             if window.is_key_pressed(KeyCode.RIGHT):
-                self.x += 7
+                self.x += self.speed
                 self.state = 1
             elif window.is_key_pressed(KeyCode.LEFT):
-                self.x -= 7
+                self.x -= self.speed
                 self.state = -1
             else:
                 self.state = 0
+        if self.is_touching_any_sprite_with_tag("attackp2"):
+            p2_hp_bar.scale_x -= 1
+            p2_hp_bar.x += 0.5
+            self.speed = 2.5
+            Scheduler.wait(3,self.speed_back)
         if self.state == 0:
             self.time = 0
             self.image = "img/stop.png"
@@ -320,9 +376,13 @@ class P2(Sprite):
                 self.time = 0
             if knife2.scale_x < 0:
                 knife2.scale_x *= -1
-        if window.is_key_down(KeyCode.N):
+        if window.is_key_down(KeyCode.N) and self.rock_CD <= 0.5:
             window.create_sprite(Rock)
             self.ysp = 25
+            self.rock_CD = 12
+        if window.is_key_down(KeyCode.B) and self.knife_attack_CD <= 0.5:
+            window.create_sprite(Knife_attack2)
+            self.knife_attack_CD = 8
         if window.is_key_pressed(KeyCode.UP) and self.is_jump == False and self.is_hit == False:
             self.ysp = 18
             self.is_jump = True
@@ -334,6 +394,8 @@ class P2(Sprite):
             self.y = groundt.y + groundt.height/2 + self.height/2
             self.is_jump = False
             self.ysp = 0
+    def speed_back(self):
+        self.speed = 7
         
 
         
