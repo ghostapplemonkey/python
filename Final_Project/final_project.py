@@ -1,4 +1,7 @@
+from matplotlib import image
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
+from pycat.experimental.simple_level_editor import start_level_editor
+from requests import delete
 
 window = Window(width=1200,height=600)
 window.create_sprite(position=window.center,scale=1200,color=Color.WHITE,layer=-100)
@@ -6,6 +9,20 @@ g = window.create_sprite(x=600,y=25,scale=100,scale_x=1200,color=Color.BLACK)
 g1 = window.create_sprite(x=325,y=250,scale_y=15,scale_x=220,color=Color.BLACK)
 g2 = window.create_sprite(x=875,y=250,scale_y=15,scale_x=220,color=Color.BLACK)
 g3 = window.create_sprite(x=600,y=425,scale_y=15,scale_x=220,color=Color.BLACK)
+window.create_sprite(x=165,y=530,image="img/p1text.png",scale=0.5,layer=-2)
+window.create_sprite(x=1035,y=530,image="img/p2text.png",scale=0.5,layer=-2)
+window.create_sprite(x=50,y=495,image="img/woodCD.png",scale=0.17,layer=-1)
+window.create_sprite(x=1150,y=495,image="img/rockCD.png",scale=0.17,layer=-1)
+window.create_sprite(x=120,y=495,image="img/knife1CD.png",scale=0.17,layer=-1)
+window.create_sprite(x=1080,y=495,image="img/knife2CD.png",scale=0.17,layer=-1)
+woodCD = window.create_sprite(x=50,y=495,scale=60,color=Color.BLACK)
+woodCD.opacity = 150
+rockCD = window.create_sprite(x=1150,y=495,scale=60,color=Color.BLACK)
+rockCD.opacity = 150
+knife1CD = window.create_sprite(x=120,y=495,scale=60,color=Color.BLACK)
+knife1CD.opacity = 150
+knife2CD = window.create_sprite(x=1080,y=495,scale=60,color=Color.BLACK)
+knife2CD.opacity = 150
 g.add_tag("ground")
 g1.add_tag("ground")
 g2.add_tag("ground")
@@ -166,6 +183,40 @@ class Rock(Sprite):
     def delete_self(self):
         self.delete()     
 
+class Attack_dash_shadow(Sprite):
+    def on_create(self):
+        self.image = "img/attack_dash.png"
+        self.scale = 0.6
+        if p1.attack_dash:
+            self.position = p1.attack_dash.position
+        else:
+            self.delete()
+    def on_update(self, dt):
+        self.opacity -= 10
+        if self.opacity <= 1:
+            self.delete()
+    
+
+
+class Attack_dash(Sprite):
+    def on_create(self):
+        self.rotation += 180
+        self.image = "img/attack_dash.png"
+        self.position = p1.position
+        self.scale = 0.6
+        self.rotation_mode = RotationMode.RIGHT_LEFT
+        self.point_toward_sprite(p2)
+        Scheduler.wait(5,self.self_delete)
+    def on_update(self, dt):
+        window.create_sprite(Attack_dash_shadow)
+        self.move_forward(50)
+        if self.is_touching_window_edge():
+            self.rotation += 180
+        
+    def self_delete(self):
+        p1.attack_dash = None
+        self.delete()
+
 class P1(Sprite):
     def on_create(self):
         self.x = 325
@@ -184,7 +235,12 @@ class P1(Sprite):
         self.flying_direction = 0
         self.knife_attack_CD = 0
         self.wood_CD = 0
+        self.attack_dash = None
     def on_update(self, dt):
+        woodCD.scale_y = (self.wood_CD*(60/12))/60
+        woodCD.y = 465+(self.wood_CD*(60/12))/2
+        knife1CD.scale_y = (self.knife_attack_CD*(60/8))/60
+        knife1CD.y = 465+(self.knife_attack_CD*(60/8))/2
         if self.knife_attack_CD >= 0:
             self.knife_attack_CD -= dt
         if self.wood_CD >= 0:
@@ -208,6 +264,8 @@ class P1(Sprite):
                 self.x -= self.xsp
         if self.xsp <= 3:
             self.is_hit = False
+        if window.is_key_down(KeyCode.U):
+            self.attack_dash = window.create_sprite(Attack_dash)
         if self.is_hit == False:
             if window.is_key_pressed(KeyCode.D):
                 self.x += self.speed
@@ -298,12 +356,16 @@ class P2(Sprite):
         self.knife_attack_CD = 0
         self.rock_CD = 0
     def on_update(self, dt):
+        rockCD.scale_y = (self.rock_CD*(60/12))/60
+        rockCD.y = 465+(self.rock_CD*(60/12))/2
+        knife2CD.scale_y = (self.knife_attack_CD*(60/8))/60
+        knife2CD.y = 465+(self.knife_attack_CD*(60/8))/2
         if p2_hp_bar.scale_x < 0:
             print("p1 win")
-            window.close()
+            # window.close()
         if p1_hp_bar.scale_x < 0:
             print("p2 win")
-            window.close()
+            # window.close()
         if self.knife_attack_CD >= 0:
             self.knife_attack_CD -= dt
         if self.rock_CD >= 0:
