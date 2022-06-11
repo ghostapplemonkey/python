@@ -1,7 +1,4 @@
-from matplotlib import image
 from pycat.core import Window, Sprite, Color, KeyCode, RotationMode, Scheduler
-from pycat.experimental.simple_level_editor import start_level_editor
-from requests import delete
 
 window = Window(width=1200,height=600)
 window.create_sprite(position=window.center,scale=1200,color=Color.WHITE,layer=-100)
@@ -15,6 +12,7 @@ window.create_sprite(x=50,y=495,image="img/woodCD.png",scale=0.17,layer=-1)
 window.create_sprite(x=1150,y=495,image="img/rockCD.png",scale=0.17,layer=-1)
 window.create_sprite(x=120,y=495,image="img/knife1CD.png",scale=0.17,layer=-1)
 window.create_sprite(x=1080,y=495,image="img/knife2CD.png",scale=0.17,layer=-1)
+window.create_sprite(x=190,y=495,image="img/dashCD.png",scale=0.17,layer=-1)
 woodCD = window.create_sprite(x=50,y=495,scale=60,color=Color.BLACK)
 woodCD.opacity = 150
 rockCD = window.create_sprite(x=1150,y=495,scale=60,color=Color.BLACK)
@@ -23,6 +21,8 @@ knife1CD = window.create_sprite(x=120,y=495,scale=60,color=Color.BLACK)
 knife1CD.opacity = 150
 knife2CD = window.create_sprite(x=1080,y=495,scale=60,color=Color.BLACK)
 knife2CD.opacity = 150
+dashCD = window.create_sprite(x=190,y=495,scale=60,color=Color.BLACK)
+dashCD.opacity = 150
 g.add_tag("ground")
 g1.add_tag("ground")
 g2.add_tag("ground")
@@ -186,13 +186,14 @@ class Rock(Sprite):
 class Attack_dash_shadow(Sprite):
     def on_create(self):
         self.image = "img/attack_dash.png"
-        self.scale = 0.6
+        self.scale = 0.2
         if p1.attack_dash:
             self.position = p1.attack_dash.position
+            self.scale_x = p1.attack_dash.scale_x
         else:
             self.delete()
     def on_update(self, dt):
-        self.opacity -= 10
+        self.opacity -= 15
         if self.opacity <= 1:
             self.delete()
     
@@ -200,17 +201,17 @@ class Attack_dash_shadow(Sprite):
 
 class Attack_dash(Sprite):
     def on_create(self):
-        self.rotation += 180
+        self.scale_x = -self.scale_x
         self.image = "img/attack_dash.png"
         self.position = p1.position
-        self.scale = 0.6
-        self.rotation_mode = RotationMode.RIGHT_LEFT
-        self.point_toward_sprite(p2)
+        self.scale = 0.2
+        self.rotation_mode = RotationMode.NO_ROTATION
         Scheduler.wait(5,self.self_delete)
     def on_update(self, dt):
         window.create_sprite(Attack_dash_shadow)
-        self.move_forward(50)
+        self.move_forward(30)
         if self.is_touching_window_edge():
+            self.scale_x = -self.scale_x
             self.rotation += 180
         
     def self_delete(self):
@@ -235,16 +236,21 @@ class P1(Sprite):
         self.flying_direction = 0
         self.knife_attack_CD = 0
         self.wood_CD = 0
+        self.dash_CD = 0
         self.attack_dash = None
     def on_update(self, dt):
         woodCD.scale_y = (self.wood_CD*(60/12))/60
         woodCD.y = 465+(self.wood_CD*(60/12))/2
         knife1CD.scale_y = (self.knife_attack_CD*(60/8))/60
         knife1CD.y = 465+(self.knife_attack_CD*(60/8))/2
+        dashCD.scale_y = (self.dash_CD*(60/40))/60
+        dashCD.y = 465+(self.dash_CD*(60/40))/2
         if self.knife_attack_CD >= 0:
             self.knife_attack_CD -= dt
         if self.wood_CD >= 0:
             self.wood_CD -= dt
+        if self.dash_CD >= 0:
+            self.dash_CD -= dt    
         self.time += dt
         self.xsp *= 0.95
         if self.is_touching_sprite(knife2) and (knife2.rotation >= 10 or knife2.rotation <= -10):
@@ -264,8 +270,9 @@ class P1(Sprite):
                 self.x -= self.xsp
         if self.xsp <= 3:
             self.is_hit = False
-        if window.is_key_down(KeyCode.U):
+        if window.is_key_down(KeyCode.U) and self.dash_CD <= 0.5:
             self.attack_dash = window.create_sprite(Attack_dash)
+            self.dash_CD = 40
         if self.is_hit == False:
             if window.is_key_pressed(KeyCode.D):
                 self.x += self.speed
@@ -382,6 +389,12 @@ class P2(Sprite):
                 self.flying_direction = -1
             else:
                 self.flying_direction = 1
+        if p1.attack_dash != None:    
+            if self.is_touching_sprite(p1.attack_dash):
+                p2_hp_bar.scale_x -= 3
+                p2_hp_bar.x += 1.5
+                self.speed = 2.5
+                Scheduler.wait(3,self.speed_back)
         if self.is_hit == True:
             if self.flying_direction == 1:
                 self.x += self.xsp
