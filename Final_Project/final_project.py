@@ -87,6 +87,30 @@ class Knife_attack2(Sprite):
     def delete_self(self):
         self.delete()
 
+class Amazing1(Sprite):
+    def on_create(self):
+        self.y = 500
+        self.x = 277
+        self.image = "img/amazing power.png"
+        self.scale = 0.34
+    def on_update(self, dt):
+        if p1_energy.scale_x < 0.5:
+            self.is_visible = True
+        else:
+            self.is_visible = False
+window.create_sprite(Amazing1)
+class Amazing2(Sprite):
+    def on_create(self):
+        self.y = 500
+        self.x = 1200-277
+        self.image = "img/amazing power.png"
+        self.scale = 0.34
+    def on_update(self, dt):
+        if p2_energy.scale_x < 0.5:
+            self.is_visible = True
+        else:
+            self.is_visible = False
+window.create_sprite(Amazing2)
 class Knife(Sprite):
     def on_create(self):
         self.image = "img/sword.png"
@@ -235,7 +259,7 @@ class Amazing_Attack_dash(Sprite):
         self.position = p1.position
         self.scale = 0.2
         self.state = 1
-        Scheduler.wait(5,self.self_delete)
+        Scheduler.wait(3.5,self.self_delete)
     def on_update(self, dt):
         window.create_sprite(Attack_dash_shadow)
         if self.state == 1:    
@@ -254,6 +278,8 @@ class Amazing_Attack_dash(Sprite):
     def self_delete(self):
         p1.attack_dash = None
         self.delete()
+        p1_energy.scale_x = 200
+        p1_energy.x = 200
 
 class Fireball(Sprite):
     def on_create(self):
@@ -370,8 +396,8 @@ class P1(Sprite):
             self.time = 0
             self.image = "img/stop.png"
         if self.state != 0 and p1_energy.scale_x > 0.1:
-            p1_energy.x += dt*2
-            p1_energy.scale_x -= dt*4
+            p1_energy.x += dt
+            p1_energy.scale_x -= dt*2
         if self.state == 1:
             if self.time <= 0.1:
                 self.image = "img/move1.png"
@@ -448,6 +474,9 @@ class P2(Sprite):
         self.is_fire = False
         self.is_amazing = False
     def on_update(self, dt):
+        if window.is_key_pressed(KeyCode.O):
+            p1_energy.scale_x = 0
+            p2_energy.scale_x = 0
         rockCD.scale_y = (self.rock_CD*(60/12))/60
         rockCD.y = 465+(self.rock_CD*(60/12))/2
         knife2CD.scale_y = (self.knife_attack_CD*(60/8))/60
@@ -455,11 +484,19 @@ class P2(Sprite):
         fireballCD.scale_y = (self.fireball_CD*(60/40))/60
         fireballCD.y = 465+(self.fireball_CD*(60/40))/2
         if p2_hp_bar.scale_x < 0:
-            print("p1 win")
-            # window.close()
+            window.create_sprite(image="img/p1win.png",position=window.center,layer=10000)
+            window.create_sprite(image="img/p1win.png",position=window.center,x = 700,layer=9999)
+            window.create_sprite(image="img/p1win.png",position=window.center,x = 800,layer=9998)
+            window.create_sprite(image="img/p1win.png",position=window.center,x = 500,layer=9999)
+            window.create_sprite(image="img/p1win.png",position=window.center,x = 400,layer=9998)
+            p1_hp_bar.scale_x = 1200
         if p1_hp_bar.scale_x < 0:
-            print("p2 win")
-            # window.close()
+            window.create_sprite(image="img/p2win.png",position=window.center,layer=10000)
+            window.create_sprite(image="img/p2win.png",position=window.center,x = 700,layer=9999)
+            window.create_sprite(image="img/p2win.png",position=window.center,x = 800,layer=9998)
+            window.create_sprite(image="img/p2win.png",position=window.center,x = 500,layer=9999)
+            window.create_sprite(image="img/p2win.png",position=window.center,x = 400,layer=9998)
+            p2_hp_bar.scale_x = 1200
         if self.knife_attack_CD >= 0:
             self.knife_attack_CD -= dt
         if self.rock_CD >= 0:
@@ -509,8 +546,8 @@ class P2(Sprite):
             self.time = 0
             self.image = "img/stop.png"
         if self.state != 0 and p2_energy.scale_x > 0.1:
-            p2_energy.x -= dt*2
-            p2_energy.scale_x -= dt*4
+            p2_energy.x -= dt
+            p2_energy.scale_x -= dt*2
         if self.state == 1:
             if self.time <= 0.1:
                 self.image = "img/move1.png"
@@ -556,12 +593,12 @@ class P2(Sprite):
         if self.is_fire == True:
             if self.is_amazing == False:
                 self.firetime += dt
-                if self.firetime > 0.2:
+                if self.firetime > 0.17:
                     window.create_sprite(Fireball)
                     self.firetime = 0
             else:
                 self.firetime += dt
-                if self.firetime > 0.05:
+                if self.firetime > 0.0332:
                     window.create_sprite(AmazingFireball)
                     self.firetime = 0
             
