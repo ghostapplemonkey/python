@@ -225,6 +225,30 @@ class Attack_dash(Sprite):
         if self.is_touching_window_edge():
             self.scale_x = -self.scale_x
             self.rotation += 180
+    def self_delete(self):
+        p1.attack_dash = None
+        self.delete()
+class Amazing_Attack_dash(Sprite):
+    def on_create(self):
+        self.scale_x = -self.scale_x
+        self.image = "img/attack_dash.png"
+        self.position = p1.position
+        self.scale = 0.2
+        self.state = 1
+        Scheduler.wait(5,self.self_delete)
+    def on_update(self, dt):
+        window.create_sprite(Attack_dash_shadow)
+        if self.state == 1:    
+            self.move_forward(35)
+            self.point_toward_sprite(p2)
+            if self.is_touching_sprite(p2):
+                self.state = 2
+                self.rotation += randint(1,20)
+        if self.state == 2:
+            self.move_forward(35)
+            if self.is_touching_window_edge():
+                self.state = 1
+    
 
         
     def self_delete(self):
@@ -322,8 +346,12 @@ class P1(Sprite):
         if self.xsp <= 3:
             self.is_hit = False
         if window.is_key_down(KeyCode.Y) and self.dash_CD <= 0.5:
-            self.attack_dash = window.create_sprite(Attack_dash)
-            self.dash_CD = 40
+            if p1_energy.scale_x > 2:
+                self.attack_dash = window.create_sprite(Attack_dash)
+                self.dash_CD = 40
+            else:
+                self.attack_dash = window.create_sprite(Amazing_Attack_dash)
+                self.dash_CD = 40
         if self.is_hit == False:
             if window.is_key_pressed(KeyCode.D):
                 self.x += self.speed
@@ -519,7 +547,7 @@ class P2(Sprite):
             window.create_sprite(Rock)
             self.ysp = 25
             self.rock_CD = 12
-        if window.is_key_down(KeyCode.K):
+        if window.is_key_down(KeyCode.K) and self.fireball_CD <= 0.5:
             self.is_fire = True
             self.fireball_CD = 40
             Scheduler.wait(5,self.no_fire)
@@ -533,7 +561,7 @@ class P2(Sprite):
                     self.firetime = 0
             else:
                 self.firetime += dt
-                if self.firetime > 0.08:
+                if self.firetime > 0.05:
                     window.create_sprite(AmazingFireball)
                     self.firetime = 0
             
@@ -556,6 +584,10 @@ class P2(Sprite):
     def no_fire(self):
         self.is_fire = False
         self.firetime = 0
+        if self.is_amazing == True:
+            self.is_amazing = False
+            p2_energy.scale_x = 200
+            p2_energy.x = 1000
         
 
         
