@@ -517,8 +517,8 @@ class P2(Sprite):
                 self.flying_direction = 1
         if p1.attack_dash != None:    
             if self.is_touching_sprite(p1.attack_dash):
-                p2_hp_bar.scale_x -= 4.5
-                p2_hp_bar.x += 2.25
+                p2_hp_bar.scale_x -= 6
+                p2_hp_bar.x += 3
                 self.speed = 2.5
                 Scheduler.wait(3,self.speed_back)
         if self.is_hit == True:
@@ -598,7 +598,7 @@ class P2(Sprite):
                     self.firetime = 0
             else:
                 self.firetime += dt
-                if self.firetime > 0.0332:
+                if self.firetime > 0.07:
                     window.create_sprite(AmazingFireball)
                     self.firetime = 0
             
