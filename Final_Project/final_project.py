@@ -360,8 +360,8 @@ class P1(Sprite):
             else:
                 self.flying_direction = 1
         if self.is_touching_any_sprite_with_tag("fireball"):
-            p1_hp_bar.scale_x -= 1
-            p1_hp_bar.x -= 0.5
+            p1_hp_bar.scale_x -= 3
+            p1_hp_bar.x -= 1.5
             self.speed = 2.5
             Scheduler.wait(3,self.speed_back)
         if self.is_hit == True:
